@@ -1,5 +1,6 @@
 import bot from "./assets/bot.svg";
 import user from "./assets/user.svg";
+import axios from "axios";
 const form = document.querySelector('form')
 
 const chatContainer = document.querySelector('#chat_container')
@@ -14,7 +15,7 @@ function loader(element) {
       element.textContent += '.';
 
       // If the loading indicator has reached three dots, reset it
-      if (element.textContent === '....') {
+      if (element.textContext === '....') {
           element.textContent = '';
       }
   }, 300);
@@ -85,6 +86,30 @@ const handleSubmit= async(e) =>{
 
   // messageDiv.innerHTML = "..."
   loader(messageDiv)
+  // connect to the server
+  const response = await  fetch('http://localhost:5000/', {
+  method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+      
+        },
+        body: JSON.stringify({
+          prompt: data.get('prompt')
+        })
+       } )
+       clearInterval(loadInterval);
+       messageDiv.innerHTML = '';
+
+       if(response.ok) {
+         const data= await response.json()
+      const parsedData= data.bot.trim();
+
+      typeText(messageDiv, parsedData);
+       }else{
+        const err = await response.text();
+        messageDiv.innerHTML = "something went wrong"
+        alert(err)
+       }
 
 }
 
